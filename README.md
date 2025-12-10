@@ -60,7 +60,7 @@ Les routes d'authtentification permettent de gérer la création de comptes et l
 
 Les routes produits permettent la récupération et la gestion des produits, ces routes ne sont disponibles que pour les utilisateurs authentifiés.
 
-| method | route            | description                       | Payload et réponse            | Admin |
+| method | route            | description                       | Payload et réponse            | Admin (admin@admin.com) |
 | ------ | ---------------- | --------------------------------- | ----------------------------- | ----- |
 | GET    | `/products`      | Récupère la totalité des produits | [products](#products-findall) |       |
 | GET    | `/products/{id}` | Récupère le produit d'ID {id}     | [products](#products)         |
