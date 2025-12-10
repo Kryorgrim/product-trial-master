@@ -49,6 +49,10 @@ export class ShoppingCartService {
   }
 
   public addProduct(product: Product): Observable<ShoppingCartProduct[]> {
+    const cartProduct = this._cartProducts().find((cp) => cp.product.id == product.id);
+    if (cartProduct) {
+      return this.updateProduct(cartProduct);
+    }
     return this.http
       .post<ShoppingCartProduct[]>(`${this.path}/products`, {
         productId: product.id,

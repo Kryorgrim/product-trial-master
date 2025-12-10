@@ -19,6 +19,8 @@ export class ShoppingCartProductComponent {
 
   onRemove = output<ShoppingCartProduct>();
 
+  price = computed(() => this.cartProduct().quantity * this.cartProduct().product.price)
+
   onDeleteClick() {
     this.onDelete.emit(this.cartProduct());
   }
