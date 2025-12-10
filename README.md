@@ -49,8 +49,6 @@ L'API est composée de plusieurs routes
 
 Les routes d'authtentification permettent de gérer la création de comptes et la connexion à ceux-ci
 
-- [POST] /account -> Permet de créer un nouveau compte pour un utilisateur avec les informations fournies par la requête.
-
 | method | route      | description                                                                                                                                                                | Payload et réponse  |
 | ------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | POST   | `/account` | Créer un utilisateur en base                                                                                                                                               | [account](#account) |
