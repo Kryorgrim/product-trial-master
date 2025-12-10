@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from "@angular/core";
 import { Product } from "app/products/data-access/product.model";
 import { ProductsService } from "app/products/data-access/products.service";
 import { ProductFormComponent } from "app/products/ui/product-form/product-form.component";
+import { ProductComponent } from "app/products/ui/product/product.component";
+import { ShoppingCartService } from "app/shopping-cart/data-access/shopping-cart.service";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { DataViewModule } from 'primeng/dataview';
@@ -29,10 +31,11 @@ const emptyProduct: Product = {
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.scss"],
   standalone: true,
-  imports: [DataViewModule, CardModule, ButtonModule, DialogModule, ProductFormComponent],
+  imports: [DataViewModule, CardModule, ButtonModule, DialogModule, ProductFormComponent, ProductComponent],
 })
 export class ProductListComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
+  private readonly shoppingCartService = inject(ShoppingCartService)
 
   public readonly products = this.productsService.products;
 
@@ -58,6 +61,10 @@ export class ProductListComponent implements OnInit {
 
   public onDelete(product: Product) {
     this.productsService.delete(product.id).subscribe();
+  }
+
+  public onAdd(product: Product) {
+    this.shoppingCartService.addProduct(product).subscribe();
   }
 
   public onSave(product: Product) {

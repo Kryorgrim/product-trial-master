@@ -1,54 +1,147 @@
-# Consignes
+# Test ALTEN
 
-- Vous êtes développeur front-end : vous devez réaliser les consignes décrites dans le chapitre [Front-end](#Front-end)
+Le test réalisé est le test pour développeur full-stack
 
-- Vous êtes développeur back-end : vous devez réaliser les consignes décrites dans le chapitre [Back-end](#Back-end) (*)
+## Partie Back-end
 
-- Vous êtes développeur full-stack : vous devez réaliser les consignes décrites dans le chapitre [Front-end](#Front-end) et le chapitre [Back-end](#Back-end) (*)
+### Stack
 
-(*) Afin de tester votre API, veuillez proposer une stratégie de test appropriée.
+- langage: **PHP**
+- framework: **Symfony**
+- webserver: **Nginx**
+- base de données: **MySQL**
 
-## Front-end
+### Installation
 
-Le site de e-commerce d'Alten a besoin de s'enrichir de nouvelles fonctionnalités.
+L'application est designée pour fonctionner avec [docker](https://www.docker.com/).
 
-### Partie 1 : Shop
+Pour commencer vous devez build les images avec la commande suivante :
 
-- Afficher toutes les informations pertinentes d'un produit sur la liste
-- Permettre d'ajouter un produit au panier depuis la liste 
-- Permettre de supprimer un produit du panier
-- Afficher un badge indiquant la quantité de produits dans le panier
-- Permettre de visualiser la liste des produits qui composent le panier.
+```sh
+docker compose build
+```
 
-### Partie 2
+Puis lancer les containers avec la commande suivante:
 
-- Créer un nouveau point de menu dans la barre latérale ("Contact")
-- Créer une page "Contact" affichant un formulaire
-- Le formulaire doit permettre de saisir son email, un message et de cliquer sur "Envoyer"
-- Email et message doivent être obligatoirement remplis, message doit être inférieur à 300 caractères.
-- Quand le message a été envoyé, afficher un message à l'utilisateur : "Demande de contact envoyée avec succès".
+```sh
+docker compose up -d
+```
 
-### Bonus : 
+L'application nécessite ensuite l'installation des dépendances via composer
 
-- Ajouter un système de pagination et/ou de filtrage sur la liste des produits
-- On doit pouvoir visualiser et ajuster la quantité des produits depuis la liste et depuis le panier 
+```sh
+docker exec -it symfony composer install --no-interaction --optimize-autoloader
+```
 
-## Back-end
+Enfin une migration doit être executée pour deployer le schema de la base de donnée
 
-### Partie 1
+```sh
+docker exec -it symfony bin/console doctrine:migrations:migrate --no-interaction
+```
 
-Développer un back-end permettant la gestion de produits définis plus bas.
-Vous pouvez utiliser la technologie de votre choix parmi la liste suivante :
+L'application sera ensuite disponible à l'adresse http://localhost
 
-- Node.js/Express
-- Java/Spring Boot
-- C#/.net Core
-- PHP/Symphony : Utilisation d'API Platform interdite
+### Utilisation
 
-Un produit a les caractéristiques suivantes : 
+L'API est composée de plusieurs routes
 
-``` typescript
-class Product {
+#### Authentification
+
+Les routes d'authtentification permettent de gérer la création de comptes et la connexion à ceux-ci
+
+- [POST] /account -> Permet de créer un nouveau compte pour un utilisateur avec les informations fournies par la requête.
+
+| method | route      | description                                                                                                                                                                | Payload et réponse  |
+| ------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| POST   | `/account` | Créer un utilisateur en base                                                                                                                                               | [account](#account) |
+| POST   | `/token`   | Permet à un utilisateur de se connecter et générant un JWT, Le token doit ensuite être placé dans le header Authorization à chaque requête `Authorization Bearer ${token}` |
+
+#### Gestion des produits
+
+Les routes produits permettent la récupération et la gestion des produits, ces routes ne sont disponibles que pour les utilisateurs authentifiés.
+
+| method | route            | description                       | Payload et réponse            | Admin |
+| ------ | ---------------- | --------------------------------- | ----------------------------- | ----- |
+| GET    | `/products`      | Récupère la totalité des produits | [products](#products-findall) |       |
+| GET    | `/products/{id}` | Récupère le produit d'ID {id}     | [products](#products)         |
+| POST   | `/products`      | Créer un produit                  | [products](#products-create)  | x     |
+| PATCH  | `/products/{id}` | Met à jour le produit d'ID {id}   | [products](#products-update)  | x     |
+| DELETE | `/products/{id}` | Supprime le produit d'ID {id}     |                               | x     |
+
+#### Gestion du panier
+
+Les routes panier permettent la récupération et la gestion du panier de l'utilisateur connecté, ces routes ne sont disponibles que pour les utilisateurs authentifiés.
+
+| method | route                          | description                                                                                      | Payload et réponse                          |
+| ------ | ------------------------------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| GET    | `/shopping-cart`               | Récupère le panier et ses produits                                                               | [ShoppingCart](#shoppingcart)               |
+| POST   | `/shopping-cart/products`      | Ajoute un produit et sa quantité au panier                                                       | [ShoppingCart](#shoppingcart-addproduct)    |
+| PATCH  | `/shopping-cart/products/{id}` | Met à jour la quantité d'un produit, l'ID correspond à celui de la table pivot et non du produit | [ShoppingCart](#shoppingcart-updateproduct) |
+| DELETE | `/shopping-cart/products/{id}` | Supprime un produit du produit, l'ID correspond à celui de la table pivot et non du produit      |                                             |
+
+#### Gestion de la liste de souhait
+
+Les routes panier permettent la récupération et la gestion de la liste de souhait de l'utilisateur connecté, ces routes ne sont disponibles que pour les utilisateurs authentifiés.
+
+| method | route                      | description                              | Payload et réponse               |
+| ------ | -------------------------- | ---------------------------------------- | -------------------------------- |
+| GET    | `/wish-list`               | Récupère le panier et ses produits       | [WishList](#wishlist)            |
+| POST   | `/wish-list/products`      | Ajoute un produit à la liste de souhait  | [WishList](#wishlist-addproduct) |
+| DELETE | `/wish-list/products/{id}` | Retire un produit de la liste de souhait |                                  |
+
+### Payload et Réponses
+
+#### Authentification
+
+##### account
+
+Payload:
+
+```typescript
+interface {
+    username: string;
+    email: string;
+    firstname: string;
+    password: string;
+}
+```
+
+Réponse:
+
+```typescript
+interface {
+    id: number;
+    username: string;
+    email: string;
+    firstname: string;
+}
+```
+
+##### token
+
+payload:
+
+```typescript
+interface {
+    email: string;
+    password: string;
+}
+```
+
+Réponse:
+
+```typescript
+interface {
+    token: string;
+}
+```
+
+#### Products
+
+Le format des products retourné par l'API est toujours le même:
+
+```typescript
+interface Product {
   id: number;
   code: string;
   name: string;
@@ -66,36 +159,103 @@ class Product {
 }
 ```
 
-Le back-end créé doit pouvoir gérer les produits dans une base de données SQL/NoSQL ou dans un fichier json.
+##### Products findAll
 
-### Partie 2
+```typescript
+type Products = Product[];
+```
 
-- Imposer à l'utilisateur de se connecter pour accéder à l'API.
-  La connexion doit être gérée en utilisant un token JWT.  
-  Deux routes devront être créées :
-  * [POST] /account -> Permet de créer un nouveau compte pour un utilisateur avec les informations fournies par la requête.   
-    Payload attendu : 
-    ```
-    {
-      username: string,
-      firstname: string,
-      email: string,
-      password: string
-    }
-    ```
-  * [POST] /token -> Permet de se connecter à l'application.  
-    Payload attendu :  
-    ```
-    {
-      email: string,
-      password: string
-    }
-    ```
-    Une vérification devra être effectuée parmi tout les utilisateurs de l'application afin de connecter celui qui correspond aux infos fournies. Un token JWT sera renvoyé en retour de la reqûete.
-- Faire en sorte que seul l'utilisateur ayant le mail "admin@admin.com" puisse ajouter, modifier ou supprimer des produits. Une solution simple et générique devra être utilisée. Il n'est pas nécessaire de mettre en place une gestion des accès basée sur les rôles.
-- Ajouter la possibilité pour un utilisateur de gérer un panier d'achat pouvant contenir des produits.
-- Ajouter la possibilité pour un utilisateur de gérer une liste d'envie pouvant contenir des produits.
+##### Products create
 
-## Bonus
+Payload attendu:
 
-Vous pouvez ajouter des tests Postman ou Swagger pour valider votre API
+```typescript
+interface StoreProduct {
+  code: string;
+  name: string;
+  description: string;
+  image: string;
+  category: string;
+  price: number;
+  quantity: number;
+  internalReference: string;
+  shellId: number;
+  inventoryStatus: "INSTOCK" | "LOWSTOCK" | "OUTOFSTOCK";
+  rating: number;
+}
+```
+
+[Réponse](#products)
+
+##### Products update
+
+Payload attendu:
+
+```typescript
+type UpdateProduct = Partial<StoreProduct>;
+```
+
+[Réponse](#products)
+
+#### ShoppingCart
+
+Le format des products retourné par l'API est toujours le même:
+
+```typescript
+interface ShoppingCart {
+  id: number;
+  products: {
+    id: number;
+    quantity: number;
+    product: Product;
+  }[];
+}
+```
+
+##### ShoppingCart-addProduct
+
+Payload attendu:
+
+```typescript
+interface {
+    productId: number;
+    quantity: number;
+}
+```
+
+[Réponse](#shoppingcart)
+
+##### ShoppingCart-updateProduct
+
+Payload attendu:
+
+```typescript
+interface {
+    quantity: number;
+}
+```
+
+[Réponse](#shoppingcart)
+
+#### WishList
+
+Le format des products retourné par l'API est toujours le même:
+
+```typescript
+interface WishList {
+  id: number;
+  products: Product[];
+}
+```
+
+##### WishList-addProduct
+
+Payload attendu:
+
+```typescript
+interface {
+    productId: number;
+}
+```
+
+[Réponse](#wishlist)

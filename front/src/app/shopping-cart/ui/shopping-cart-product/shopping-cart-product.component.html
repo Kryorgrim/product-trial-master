@@ -1,0 +1,19 @@
+<p-card class="block mb-2">
+  <div class="flex justify-content-between">
+    <div class="flex gap-5">
+      <img
+        class="w-5rem"
+        [src]="cartProduct().product.image"
+        [alt]="cartProduct().product.image"
+      />
+      <div class="text-lg font-medium text-900 mt-2">
+        {{ cartProduct().product.name }} x{{cartProduct().quantity}}
+      </div>
+    </div>
+    <div class="flex gap-3">
+        <p-button icon="pi pi-plus" text rounded (click)="onUpdateClick()" />
+        <p-button icon="pi pi-minus" text rounded (click)="onRemoveClick()" />
+        <p-button icon="pi pi-trash" text rounded (click)="onDeleteClick()" />
+    </div>
+  </div>
+</p-card>

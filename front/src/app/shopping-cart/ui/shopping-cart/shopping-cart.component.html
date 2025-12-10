@@ -1,0 +1,12 @@
+<p-dataView #dv [value]="shoppingCartProducts()">
+  <ng-template pTemplate="list" let-shoppingCartProducts>
+    @for (cartProduct of shoppingCartProducts; track cartProduct) {
+    <app-shopping-cart-product
+      [cartProduct]="cartProduct"
+      (onDelete)="onDelete($event)"
+      (onUpdate)="onUpdate($event)"
+      (onRemove)="onRemove($event)"
+    />
+    }
+  </ng-template>
+</p-dataView>

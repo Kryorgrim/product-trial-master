@@ -1,0 +1,68 @@
+<p-card class="block mb-2">
+  <div class="flex justify-content-between">
+    <div class="flex gap-5">
+      <img
+        class="w-5rem"
+        [src]="editedProduct().image"
+        [alt]="editedProduct().image"
+      />
+      <div>
+        <span class="font-medium text-secondary text-sm">{{
+          editedProduct().category
+        }}</span>
+        <div class="text-lg font-medium text-900 mt-2">
+          {{ editedProduct().name }}
+        </div>
+      </div>
+      <p>
+        {{ editedProduct().description }}
+      </p>
+    </div>
+    <div class="flex flex-column gap-2">
+      <div>
+        <span
+          [class]="{
+          'mr-2': true,
+          'border-round-xl': true,
+          'text-white': true,
+          'py-1': true,
+          'px-2': true,
+          'bg-green-500': editedProduct().inventoryStatus == 'INSTOCK',
+          'bg-orange-500': editedProduct().inventoryStatus == 'LOWSTOCK',
+          'bg-red-500': editedProduct().inventoryStatus == 'OUTOFSTOCK',
+        }"
+        >
+          {{ getStockLabel() }}
+        </span>
+        <p-rating
+          [(ngModel)]="editedProduct().rating"
+          readonly
+          [cancel]="false"
+        />
+      </div>
+      <div class="ml-auto font-bold">{{ editedProduct().price }} €</div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex gap-3 mt-1">
+      <p-button
+        label="Modifier"
+        severity="secondary"
+        (onClick)="onUpdateClick()"
+      />
+      <p-button
+        label="Supprimer"
+        severity="danger"
+        (onClick)="onDeleteClick()"
+      />
+      <p-button
+        class="ml-auto"
+        label="Ajouter au panier"
+        severity="info"
+        icon="pi pi-shopping-cart"
+        [disabled]="editedProduct().inventoryStatus == 'OUTOFSTOCK'"
+        (onClick)="onAddClick()"
+      />
+    </div>
+  </ng-template>
+</p-card>

@@ -1,0 +1,48 @@
+<h1 class="text-center">Contact</h1>
+
+<form
+  class="flex flex-column gap-2"
+  [formGroup]="contactForm"
+  (ngSubmit)="onSubmit()"
+>
+  <div class="flex flex-column gap-1">
+    <input
+      pInputText
+      type="text"
+      placeholder="Email"
+      formControlName="email"
+      [class]="isInvalid('email') ? 'ng-invalid ng-dirty' : ''"
+    />
+    @if (isInvalid('email')) { @if
+    (contactForm.get('email')?.errors?.['required']) {
+    <div class="text-red-500 font-italic">Le champs est requis</div>
+    } @if (contactForm.get('email')?.errors?.['email']) {
+    <div class="text-red-500 font-italic">
+      Le champs doit être un email valide
+    </div>
+    } }
+  </div>
+  <div class="flex flex-column gap-1">
+    <textarea
+      rows="5"
+      cols="30"
+      pInputTextarea
+      placeholder="Message"
+      formControlName="message"
+      [class]="isInvalid('message') ? 'ng-invalid ng-dirty' : ''"
+    >
+    </textarea>
+    @if (isInvalid('message')) { @if
+    (contactForm.get('message')?.errors?.['required']) {
+    <div class="text-red-500 font-italic">Le champs est requis</div>
+    } @if (contactForm.get('message')?.errors?.['maxlength']) {
+    <div class="text-red-500 font-italic">
+      Le champs doit faire une taille maximale de 300 caractères
+    </div>
+    } }
+  </div>
+  <div class="mx-auto">
+    <p-button type="submit" label="Envoyer" />
+  </div>
+</form>
+<p-toast />
