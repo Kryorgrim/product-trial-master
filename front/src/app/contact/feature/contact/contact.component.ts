@@ -58,5 +58,6 @@ export class ContactComponent {
       detail: "Demande de contact envoyée avec succès",
     });
     this.contactForm.reset();
+    this.submitted = false;
   }
 }
